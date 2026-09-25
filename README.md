@@ -63,7 +63,7 @@ See `.env.example`.
    - The table has RLS on with no policies, so Supabase's public REST API can't read it. Only the server, using the database password, can.
 4. **eBay:** create a production keyset at developer.ebay.com, then set `EBAY_CLIENT_ID` and `EBAY_CLIENT_SECRET`.
 5. **Email:** verify your domain in Resend, then set `RESEND_API_KEY` and `EMAIL_FROM`.
-6. **Cron:** set `CRON_SECRET` to a long random string. `vercel.json` already runs the check every 6 hours, and Vercel sends the secret as a Bearer token.
+6. **Cron:** set `CRON_SECRET` to a long random string. `vercel.json` runs the check once a day at 06:17 UTC (the most often Vercel's free Hobby plan allows; on Pro you can shorten it to every 6 hours), and Vercel sends the secret as a Bearer token.
 7. **Domain:** in Vercel's Domains settings, add the domain and create the DNS records it shows you.
 8. **Search Console:** submit `https://yourdomain/sitemap.xml` in Google Search Console.
 
