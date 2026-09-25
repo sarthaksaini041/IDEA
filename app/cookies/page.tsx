@@ -25,40 +25,40 @@ export default function Cookies() {
 
       <h2>What we use</h2>
       <div className="table-scroll">
-        <table className="grid-table">
+        <table className="grid-table grid-table--stack">
           <thead>
             <tr><th>Name</th><th>Type</th><th>Purpose</th><th>Kept for</th></tr>
           </thead>
           <tbody>
             <tr>
-              <td><code>tlf_session</code></td>
-              <td>Cookie, first-party. Strictly necessary.</td>
-              <td>Keeps you signed in so you can manage price alerts. Set only when you log in. It holds a random token; we store only its hash. HttpOnly, Secure and SameSite=Lax, so scripts and other sites cannot read it.</td>
-              <td>30 days, or until you log out</td>
+              <td data-label="Name"><code>tlf_session</code></td>
+              <td data-label="Type">Cookie, first-party. Strictly necessary.</td>
+              <td data-label="Purpose">Keeps you signed in so you can manage price alerts. Set only when you log in. It holds a random token; we store only its hash. HttpOnly, Secure and SameSite=Lax, so scripts and other sites cannot read it.</td>
+              <td data-label="Kept for">30 days, or until you log out</td>
             </tr>
             <tr>
-              <td><code>tlf-compare</code></td>
-              <td>localStorage, first-party. Functional.</td>
-              <td>Remembers the models you added to compare. It never leaves your browser.</td>
-              <td>Until you clear it or your browser data</td>
+              <td data-label="Name"><code>tlf-compare</code></td>
+              <td data-label="Type">localStorage, first-party. Functional.</td>
+              <td data-label="Purpose">Remembers the models you added to compare. It never leaves your browser.</td>
+              <td data-label="Kept for">Until you clear it or your browser data</td>
             </tr>
             <tr>
-              <td><code>tlf-consent</code></td>
-              <td>localStorage, first-party. Strictly necessary.</td>
-              <td>Remembers your cookie settings so we don&apos;t ask again.</td>
-              <td>Until you clear it or your browser data</td>
+              <td data-label="Name"><code>tlf-consent</code></td>
+              <td data-label="Type">localStorage, first-party. Strictly necessary.</td>
+              <td data-label="Purpose">Remembers your cookie settings so we don&apos;t ask again.</td>
+              <td data-label="Kept for">Until you clear it or your browser data</td>
             </tr>
             <tr>
-              <td>Vercel Web Analytics</td>
-              <td>No cookies, no storage</td>
-              <td>Counts page views, referrers, country and device type. Visitors are not tracked across days or sites. We strip email addresses, codes and tokens from page addresses before anything is sent.</td>
-              <td>Nothing stored on your device</td>
+              <td data-label="Name">Vercel Web Analytics</td>
+              <td data-label="Type">No cookies, no storage</td>
+              <td data-label="Purpose">Counts page views, referrers, country and device type. Visitors are not tracked across days or sites. We strip email addresses, codes and tokens from page addresses before anything is sent.</td>
+              <td data-label="Kept for">Nothing stored on your device</td>
             </tr>
             <tr>
-              <td>Vercel Speed Insights</td>
-              <td>No cookies, no storage</td>
-              <td>Measures real page load speed (Core Web Vitals) so we can keep the site fast. Same address scrubbing as above.</td>
-              <td>Nothing stored on your device</td>
+              <td data-label="Name">Vercel Speed Insights</td>
+              <td data-label="Type">No cookies, no storage</td>
+              <td data-label="Purpose">Measures real page load speed (Core Web Vitals) so we can keep the site fast. Same address scrubbing as above.</td>
+              <td data-label="Kept for">Nothing stored on your device</td>
             </tr>
           </tbody>
         </table>
