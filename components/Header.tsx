@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SITE } from "../lib/site";
+import { NavMenu } from "./NavMenu";
 
 export function Header() {
   return (
@@ -9,13 +10,7 @@ export function Header() {
           <span className="brand__mark" aria-hidden="true" />
           {SITE.name}
         </Link>
-        <nav className="nav" aria-label="Main">
-          <Link href="/">Finder</Link>
-          <Link href="/compare">Compare</Link>
-          <Link href="/guides">Guides</Link>
-          <Link href="/alerts">Price alerts</Link>
-          <Link href="/account">Account</Link>
-        </nav>
+        <NavMenu />
       </div>
     </header>
   );

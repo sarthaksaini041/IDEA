@@ -90,15 +90,21 @@ export function Finder({ items }: { items: ModelView[] }) {
     track("filter_change", { filter: name });
   };
   const brands = [...new Set(items.map((i) => i.brand))];
-  const active = toQuery({ ...f, sort: "newest" }) !== "";
+  const activeCount =
+    f.brands.length + [f.twoNvme, f.pcie, f.secondNic, f.ram64, f.media !== "any", f.vendor !== "any"].filter(Boolean).length;
+  const active = activeCount > 0;
 
   return (
     <div className="finder">
       <section className="filters panel" data-open={open} aria-label="Filters">
-        <button type="button" className="btn filters-toggle" aria-expanded={open} onClick={() => setOpen(!open)}>
-          {open ? "Hide filters" : "Show filters"}
+        <button type="button" className="btn filters-toggle" aria-expanded={open} aria-controls="filters-body" onClick={() => setOpen(!open)}>
+          <span className="filters-toggle__label">
+            Filters
+            {activeCount > 0 && <span className="filters-toggle__count" aria-label={`${activeCount} active`}>{activeCount}</span>}
+          </span>
+          <span className="filters-toggle__chev" aria-hidden="true" />
         </button>
-        <div className="filters__body">
+        <div className="filters__body" id="filters-body">
           <fieldset>
             <legend>Brand</legend>
             {brands.map((b) => (
@@ -150,7 +156,7 @@ export function Finder({ items }: { items: ModelView[] }) {
           <p className="muted" role="status" aria-live="polite" style={{ margin: 0 }}>
             {results.length} of {items.length} models
           </p>
-          <label className="small" style={{ display: "flex", gap: 8, alignItems: "center", margin: 0 }}>
+          <label className="small sort">
             Sort
             <select value={f.sort} onChange={(e) => update({ sort: e.target.value as Sort }, "sort")}>
               <option value="newest">Newest first</option>
