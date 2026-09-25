@@ -1,0 +1,47 @@
+import type { Metadata, Viewport } from "next";
+import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
+import type { ReactNode } from "react";
+import { AdScript } from "../components/ads/AdScript";
+import { Analytics } from "../components/analytics/Analytics";
+import { Footer } from "../components/Footer";
+import { Header } from "../components/Header";
+import { SITE } from "../lib/site";
+import "./globals.css";
+
+const sans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "600", "700"], variable: "--font-sans", display: "swap" });
+const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "600"], variable: "--font-mono", display: "swap" });
+
+export const metadata: Metadata = {
+  metadataBase: new URL(SITE.url),
+  title: { default: `${SITE.name}: used mini PCs for home servers, compared`, template: `%s | ${SITE.name}` },
+  description:
+    "Compare used Lenovo ThinkCentre Tiny, Dell OptiPlex Micro and HP EliteDesk Mini PCs for Proxmox, Plex, Jellyfin and home servers: NVMe slots, PCIe, max RAM, NIC and Quick Sync support.",
+  applicationName: SITE.name,
+  openGraph: { type: "website", siteName: SITE.name, locale: "en_US" },
+  twitter: { card: "summary_large_image" },
+  alternates: { canonical: "/" },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f5f3ee" },
+    { media: "(prefers-color-scheme: dark)", color: "#15171a" },
+  ],
+};
+
+export default function RootLayout({ children }: { children: ReactNode }) {
+  return (
+    <html lang="en" className={`${sans.variable} ${mono.variable}`}>
+      <body>
+        <a className="skip" href="#main">Skip to content</a>
+        <Header />
+        <main id="main">
+          <div className="wrap">{children}</div>
+        </main>
+        <Footer />
+        <AdScript />
+        <Analytics />
+      </body>
+    </html>
+  );
+}

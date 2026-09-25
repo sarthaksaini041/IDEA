@@ -1,1 +1,120 @@
-# IDEA
+# TinyLab Finder
+
+A finder and comparison site for **used business mini PCs**: Lenovo ThinkCentre Tiny, Dell OptiPlex Micro and HP EliteDesk/ProDesk Mini. It's built for people setting up home servers (Proxmox, Plex, Jellyfin, Home Assistant), with **price alerts** for eBay listings.
+
+Why this idea, with sources: [docs/RESEARCH.md](docs/RESEARCH.md).
+
+## What it does
+- **Finder** (`/`): filter by brand, 2+ NVMe slots, PCIe expansion, second-NIC option, 64 GB RAM, 4K HEVC / AV1 decode, and CPU vendor. Sort by age, threads or drive bays. Filters live in the URL, so results are shareable.
+- **Model pages** (`/models/[slug]`): spec sheet, owner notes, a transcoding table per CPU option, a buying checklist, eBay search links (US/UK/DE), similar models, and a confidence badge.
+- **Compare** (`/compare?m=a,b,c`): up to 3 models, with differing rows highlighted. Six curated head-to-heads at `/compare/[pair]` cover pairs people actually ask about on Reddit.
+- **Guides**: Quick Sync by generation, and a checklist for checking a used listing.
+- **Price alerts** (`/alerts`): double opt-in email alerts when a fixed-price eBay listing is at or under your price; one-click unsubscribe.
+
+## Data policy (read before editing `data/models.ts`)
+- `confidence: "check"` shows a "Verify specs" badge. Only switch a model to `"high"` after checking the official Lenovo PSREF, Dell or HP spec sheet or maintenance manual.
+- `idleW` stays `null` until someone actually measures it; a test enforces this. Never estimate it.
+- Unofficial facts (for example "64 GB works") go in `notes`, never in the official fields.
+- Transcoding facts live once per iGPU family in `lib/media.ts`.
+- **Before launch:** verify the 18 models marked `check`.
+
+## Tech stack
+- **Next.js 16** (App Router) with React 19 and TypeScript.
+  - Pages are statically generated.
+  - API routes are only used for alerts.
+- **Postgres** stores alerts in production (any provider: Neon, Supabase, Vercel Postgres).
+  - Without `DATABASE_URL`, alerts go to a local JSON file (for development only).
+- **eBay Browse API** supplies active listings.
+- **Resend** sends email (plain HTTP, no SDK).
+- **Scheduled price check:** a Vercel Cron job (or any external scheduler) calls `/api/cron/check-prices`.
+- **Hosting:** fits Vercel's free or low tiers. It's also a standard `next start` app, so any Node host works.
+
+```
+app/                 routes (pages, API, sitemap.ts, robots.ts, ads.txt, OG image)
+components/          UI; ads/ (AdConfig, AdSlot, AdContainer, ResponsiveAd, AdScript); analytics/
+data/                models.ts, cpus.ts, comparisons.ts, guides.tsx (the product's content)
+lib/                 catalog (derived fields), media, listings (eBay links), store, ebay, email, validate, site
+tests/               unit tests (data integrity, known facts, validation)
+docs/RESEARCH.md     research report
+```
+
+## Local development
+```bash
+npm install
+cp .env.example .env.local        # every variable is optional locally
+npm run dev                       # http://localhost:3000
+npm test                          # unit tests
+npm run lint                      # TypeScript type-check
+npm run build && npm start        # production build
+```
+To see ad placements while designing, set `NEXT_PUBLIC_ADS_PROVIDER=placeholder`.
+
+## Environment variables
+See `.env.example`.
+- **`NEXT_PUBLIC_*`** values are public and baked in at build time, so **rebuild after changing them**.
+- **Server-only secrets:** `DATABASE_URL`, `EBAY_CLIENT_ID`, `EBAY_CLIENT_SECRET`, `RESEND_API_KEY`, `EMAIL_FROM`, `CRON_SECRET`.
+
+## Production deployment (Vercel)
+1. Import the repository into Vercel.
+2. Set `NEXT_PUBLIC_SITE_URL` to your domain and `NEXT_PUBLIC_CONTACT_EMAIL` to your address.
+3. **Database:** create a Postgres database and set `DATABASE_URL`. The `alerts` table is created automatically on first use.
+4. **eBay:** create a production keyset at developer.ebay.com, then set `EBAY_CLIENT_ID` and `EBAY_CLIENT_SECRET`.
+5. **Email:** verify your domain in Resend, then set `RESEND_API_KEY` and `EMAIL_FROM`.
+6. **Cron:** set `CRON_SECRET` to a long random string. `vercel.json` already runs the check every 6 hours, and Vercel sends the secret as a Bearer token.
+7. **Domain:** in Vercel's Domains settings, add the domain and create the DNS records it shows you.
+8. **Search Console:** submit `https://yourdomain/sitemap.xml` in Google Search Console.
+
+On any other host, run `npm run build && npm start` and call `/api/cron/check-prices` with the header `Authorization: Bearer $CRON_SECRET` on a schedule.
+
+## Analytics
+Analytics are cookieless (no consent banner needed for them).
+- **Plausible:** set `NEXT_PUBLIC_ANALYTICS=plausible` and `NEXT_PUBLIC_PLAUSIBLE_DOMAIN`.
+- **Umami:** set `NEXT_PUBLIC_ANALYTICS=umami`, `NEXT_PUBLIC_UMAMI_WEBSITE_ID` and `NEXT_PUBLIC_UMAMI_SRC`.
+
+Tracked events (no personal data):
+- `filter_change`
+- `compare_add`
+- `compare_view`
+- `listing_click`
+- `alert_created`
+
+Traffic sources, top pages, returning visitors and search traffic come from the provider dashboard. Connect Search Console for search queries.
+
+## AdSense setup (after approval; approval is not guaranteed)
+1. **Apply first.** Apply once the site has real traffic and the specs are verified. Google requires original, valuable content, and thin or unverified pages hurt approval.
+2. **Configure the environment:**
+   - Set `NEXT_PUBLIC_ADS_PROVIDER=adsense` and `NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-…`.
+   - `/ads.txt` is then generated automatically.
+3. **Create ad units.** Create responsive display units in AdSense and put their IDs in:
+   - `NEXT_PUBLIC_AD_SLOT_IN_CONTENT`
+   - `NEXT_PUBLIC_AD_SLOT_SIDEBAR`
+   - `NEXT_PUBLIC_AD_SLOT_BELOW_RESULTS`
+   - `NEXT_PUBLIC_AD_SLOT_FOOTER` (optional)
+
+   A placement with no ID renders nothing.
+4. **Consent (EEA/UK/Switzerland).** In AdSense, go to **Privacy & messaging** and publish Google's certified consent message for those regions. It's served by the AdSense script, so no code change is needed.
+5. **Rebuild and redeploy.**
+
+**How the ad system behaves:**
+- Ads are off by default.
+- Every ad is labelled "Advertisement" and kept apart from content and navigation.
+- Space is reserved in advance to avoid layout shift.
+- The sidebar ad appears on desktop only.
+- There are no ads on the alert-confirmation, unsubscribe or error pages.
+
+**Adding another ad network:** add it to `AdProvider` in `components/ads/AdConfig.ts` and write a renderer in `AdSlot.tsx`.
+
+## Other monetization already wired up
+- **eBay Partner Network:** set `NEXT_PUBLIC_EPN_CAMPAIGN_ID`. Links then become `rel="sponsored"` and show a disclosure.
+- **Possible paid tier for alerts:** more alerts per email (the limit is 5 today), more marketplaces, sold-price history. Sold-price history needs eBay Marketplace Insights API approval.
+
+## Testing done
+- Unit tests: 11 passing.
+- Browser tests (Playwright, 390px mobile and 1366px desktop): 66/66 checks passing. They covered:
+  - Filtering, URL state and the empty state.
+  - Compare flow and the alert form, including client validation, the success path and a simulated API failure.
+  - Ad slots: labelled, space reserved, sidebar desktop-only.
+  - No horizontal scrolling and no console errors.
+  - SEO: title, description, canonical, og:image, exactly one h1 and JSON-LD on each page type.
+  - A crawl of 39 internal pages found no broken links.
+- API behaviour checked: 400, 422, 201, 429, confirm redirect, unsubscribe (including a repeat), and cron returning 401 without the secret and 503 without eBay keys.
