@@ -86,7 +86,14 @@ class PgStore implements AlertStore {
   private async db() {
     if (!this.pool) {
       const { Pool } = await import("pg");
-      this.pool = new Pool({ connectionString: process.env.DATABASE_URL, max: 3 });
+      // Supabase (and most hosted Postgres) sign server certs with their own CA. Pass it
+      // via DATABASE_CA_CERT (PEM) so TLS stays fully verified.
+      const ca = process.env.DATABASE_CA_CERT?.replace(/\\n/g, "\n");
+      this.pool = new Pool({
+        connectionString: process.env.DATABASE_URL,
+        max: 3,
+        ...(ca ? { ssl: { ca, rejectUnauthorized: true } } : {}),
+      });
       this.ready = this.pool
         .query(
           `create table if not exists alerts (
