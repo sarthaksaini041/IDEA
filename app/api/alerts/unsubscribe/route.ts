@@ -1,18 +1,16 @@
-import { NextResponse } from "next/server";
-import { getStore } from "../../../../lib/store";
+import { json, readJson, rejectCrossSite, serverError } from "../../../../lib/auth/http";
+import { removeByToken } from "../../../../lib/store";
 
+// One-click removal from an alert email; the secret token is the credential.
 export async function POST(req: Request) {
-  let token = "";
+  const bad = rejectCrossSite(req);
+  if (bad) return bad;
+  const b = await readJson(req);
+  const token = String(b?.token ?? "");
+  if (token.length < 20 || token.length > 100) return json({ ok: true, removed: false });
   try {
-    token = String(((await req.json()) as { token?: string }).token || "");
-  } catch {
-    return NextResponse.json({ error: "Invalid request body." }, { status: 400 });
-  }
-  try {
-    const removed = token.length > 10 && (await getStore().removeByToken(token));
-    return NextResponse.json({ ok: true, removed });
+    return json({ ok: true, removed: await removeByToken(token) });
   } catch (e) {
-    console.error("[alerts] unsubscribe failed", e);
-    return NextResponse.json({ error: "Could not process the request. Try again later." }, { status: 503 });
+    return serverError("unsubscribe", e);
   }
 }
