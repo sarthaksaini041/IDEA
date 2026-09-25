@@ -109,7 +109,7 @@ main { padding: 24px 0 8px; }
 .btn[disabled] { opacity: .55; cursor: not-allowed; }
 .btn-row { display: flex; flex-wrap: wrap; gap: 10px; margin: 14px 0; }
 label { font-weight: 600; font-size: .92rem; display: block; margin-bottom: 4px; }
-input[type="email"], input[type="number"], input[type="text"], select {
+input[type="email"], input[type="number"], input[type="text"], input[type="password"], select {
   width: 100%; min-height: 42px; padding: 8px 10px; font: inherit; color: var(--ink);
   background: var(--card); border: 1px solid var(--rule-strong); border-radius: var(--radius);
 }
