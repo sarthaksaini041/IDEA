@@ -9,7 +9,15 @@ import { SpecSheet } from "../../../components/SpecSheet";
 import { CATALOG, alternatives, getView } from "../../../lib/catalog";
 import { MEDIA, VERDICT_TEXT } from "../../../lib/media";
 import { SITE, absoluteUrl } from "../../../lib/site";
-import { COMPARISONS } from "../../../data/comparisons";
+import { comparisonsFor } from "../../../data/comparisons";
+import { GUIDES } from "../../../data/guides";
+import { useCasesFor } from "../../../data/usecases";
+import { AffiliateDisclosure } from "../../../components/AffiliateDisclosure";
+import { BuildList } from "../../../components/model/BuildList";
+import { PriceBox } from "../../../components/model/PriceBox";
+import { SaveButton } from "../../../components/model/SaveButton";
+import { measuredIdle } from "../../../lib/catalog";
+import { modelFaqs } from "../../../lib/faq";
 
 type Props = { params: Promise<{ slug: string }> };
 
@@ -28,6 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     description,
     alternates: { canonical: `/models/${m.slug}` },
     openGraph: { title, description, url: `/models/${m.slug}`, images: ["/opengraph-image"] },
+    twitter: { card: "summary_large_image", title, description },
   };
 }
 
@@ -35,16 +44,27 @@ export default async function ModelPage({ params }: Props) {
   const m = getView((await params).slug);
   if (!m) notFound();
   const alts = alternatives(m);
-  const related = COMPARISONS.filter((c) => c.a === m.slug || c.b === m.slug);
+  const related = comparisonsFor(m.slug);
+  const uses = useCasesFor(m);
+  const faqs = modelFaqs(m);
+  const guides = GUIDES.filter((g) => g.models?.(m));
+  const power = m.power ?? [];
   const families = m.cpuList.map((c) => c.igpuFamily);
-  const ld = {
-    "@context": "https://schema.org",
-    "@type": "WebPage",
-    name: `${m.name} specifications`,
-    url: absoluteUrl(`/models/${m.slug}`),
-    dateModified: SITE.dataUpdated,
-    about: { "@type": "Thing", name: m.name },
-  };
+  const ld = [
+    {
+      "@context": "https://schema.org",
+      "@type": "WebPage",
+      name: `${m.name} specifications`,
+      url: absoluteUrl(`/models/${m.slug}`),
+      dateModified: SITE.dataUpdated,
+      about: { "@type": "Thing", name: m.name, manufacturer: { "@type": "Organization", name: m.brand } },
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: faqs.map((f) => ({ "@type": "Question", name: f.q, acceptedAnswer: { "@type": "Answer", text: f.a } })),
+    },
+  ];
 
   return (
     <>
@@ -59,6 +79,7 @@ export default async function ModelPage({ params }: Props) {
             {m.pcieSlot !== "none" ? "It can take a PCIe card, which is rare in this size." : m.extraNicOption ? "It has a vendor slot for a second network port." : "It has no internal expansion slot."}
           </p>
           <p style={{ display: "flex", gap: 12, flexWrap: "wrap", alignItems: "center" }}>
+            <SaveButton slug={m.slug} />
             <span className="verdict"><span className={`dot dot--${m.verdict}`} aria-hidden="true" />{VERDICT_TEXT[m.verdict]}</span>
             {m.confidence === "high" ? (
               <span className="badge badge--high">Specs widely confirmed</span>
@@ -73,6 +94,9 @@ export default async function ModelPage({ params }: Props) {
               <Link href="/contact">Know the answer? Send a correction.</Link>
             </p>
           )}
+
+          <h2>Used price</h2>
+          <PriceBox slug={m.slug} />
 
           <h2>Specifications</h2>
           <SpecSheet m={m} />
@@ -95,6 +119,28 @@ export default async function ModelPage({ params }: Props) {
 
           <AdSlot placement="in-content" />
 
+          <h2>Power consumption</h2>
+          {power.length ? (
+            <div className="table-scroll"><table className="grid-table">
+              <thead><tr><th>Idle</th><th>Load</th><th>Configuration</th><th>Method</th><th>Source</th></tr></thead>
+              <tbody>{power.map((p) => (
+                <tr key={p.source.url + p.config}><td>{p.idleMaxW ? `${p.idleW}–${p.idleMaxW}` : `~${p.idleW}`} W</td><td>{p.loadW ? `${p.loadW} W` : "–"}</td><td>{p.config}</td><td>{p.method} ({p.measuredOn})</td>
+                  <td><a href={p.source.url} rel="nofollow noopener" target="_blank">{p.source.label}</a>{p.via && <span className="small muted"> (cited via <a href={p.via.url} rel="nofollow noopener" target="_blank">{p.via.label}</a>)</span>}</td></tr>
+              ))}</tbody>
+            </table></div>
+          ) : null}
+          {power.length > 0 && <p className="small muted">Third-party readings we have not re-measured. Your drives, BIOS power settings and OS change idle draw; see <Link href="/guides/mini-pc-power-consumption">how to measure it</Link> or <Link href="/contact">send your own reading</Link>.</p>}
+          {power.length ? null : (
+            <p className="prose">
+              <strong>Not measured yet.</strong> We only publish idle figures with a source, the configuration and the method.
+              {measuredIdle(m) ? "" : " If you have measured one at the wall, "}<Link href="/contact">send us your reading</Link>{" "}
+              (CPU, RAM, drives, OS, meter and date). See <Link href="/guides/mini-pc-power-consumption">how to measure idle power</Link>.
+            </p>
+          )}
+
+          <h2>What to buy with it</h2>
+          <BuildList m={m} />
+
           <h2>Plex and Jellyfin transcoding</h2>
           <p className="prose">{MEDIA[m.bestIgpu].note} The table covers every CPU option sold in this chassis. Check which CPU a listing actually has.</p>
           <MediaTable families={families} />
@@ -115,9 +161,29 @@ export default async function ModelPage({ params }: Props) {
 
           <h2>Find one</h2>
           <ListingLinks model={m} />
+          <AffiliateDisclosure />
           <p>
             <Link className="btn btn--primary" href={`/alerts?model=${m.slug}`}>Email me when one is listed under my price</Link>
           </p>
+
+          <h2>Frequently asked questions</h2>
+          <dl className="faq">
+            {faqs.map((f) => (<div key={f.q}><dt>{f.q}</dt><dd>{f.a}</dd></div>))}
+          </dl>
+
+          {uses.length > 0 && (
+            <>
+              <h2>Good for</h2>
+              <ul className="chips">{uses.map((u) => <li key={u.slug}><Link href={`/best/${u.slug}`}>{u.label}</Link></li>)}</ul>
+            </>
+          )}
+
+          {guides.length > 0 && (
+            <>
+              <h2>Related guides</h2>
+              <ul>{guides.map((g) => <li key={g.slug}><Link href={`/guides/${g.slug}`}>{g.title}</Link></li>)}</ul>
+            </>
+          )}
 
           {related.length > 0 && (
             <>

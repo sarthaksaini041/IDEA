@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ModelView } from "../lib/catalog";
-import { genRange, pcieLabel } from "../lib/catalog";
+import { genRange, idleLabel, pcieLabel } from "../lib/catalog";
 import { VERDICT_TEXT } from "../lib/media";
 
 const ROWS: [string, (m: ModelView) => string][] = [
@@ -8,14 +8,17 @@ const ROWS: [string, (m: ModelView) => string][] = [
   ["CPU generations", genRange],
   ["Most threads", (m) => String(m.maxThreads)],
   ["Chipset", (m) => m.chipset ?? "Not listed"],
+  ["Memory type", (m) => `${m.ram.type}-${m.ram.speedMTs}`],
   ["Max RAM (official)", (m) => `${m.ram.maxOfficialGB} GB`],
   ["M.2 NVMe slots", (m) => String(m.storage.m2Nvme)],
   ['2.5" bays', (m) => String(m.storage.sata25)],
   ["PCIe expansion", (m) => pcieLabel(m.pcieSlot)],
   ["Onboard NIC", (m) => m.nic ?? "Not listed"],
   ["Second NIC option", (m) => m.extraNicOption ?? "USB only"],
+  ["2.5/10GbE path", (m) => (m.lanUpgrades ?? []).map((u) => `${u.speed}${u.basis === "community" ? " (owner-reported)" : ""}`).join(", ") || "USB only"],
+  ["AV1 decode", (m) => (m.av1 ? "Yes (best CPU option)" : "No")],
   ["Transcoding", (m) => VERDICT_TEXT[m.verdict]],
-  ["Idle power (measured)", (m) => (m.idleW ? `${m.idleW} W` : "Not measured yet")],
+  ["Idle power (measured)", idleLabel],
   ["Spec confidence", (m) => (m.confidence === "high" ? "Widely confirmed" : "Verify before buying")],
 ];
 
@@ -68,6 +71,11 @@ export function differences(a: ModelView, b: ModelView): string[] {
   if (a.maxThreads !== b.maxThreads) {
     const [more, less] = a.maxThreads > b.maxThreads ? [a, b] : [b, a];
     out.push(`The top CPU option in ${more.shortName} has ${more.maxThreads} threads versus ${less.maxThreads} in ${less.shortName}.`);
+  }
+  if (a.ram.type !== b.ram.type) out.push(`${a.shortName} takes ${a.ram.type} and ${b.shortName} takes ${b.ram.type} SODIMMs: RAM is not interchangeable between them.`);
+  if ((a.lanUpgrades?.length ?? 0) !== (b.lanUpgrades?.length ?? 0)) {
+    const [yes, no] = a.lanUpgrades?.length ? [a, b] : [b, a];
+    out.push(`${yes.shortName} has a path to ${yes.lanUpgrades!.map((u) => u.speed).join("/")} networking; ${no.shortName} is limited to 1 GbE plus USB adapters.`);
   }
   if (a.verdict !== b.verdict) out.push(`Transcoding: ${a.shortName}: ${VERDICT_TEXT[a.verdict].toLowerCase()}; ${b.shortName}: ${VERDICT_TEXT[b.verdict].toLowerCase()}.`);
   if ((a.nic ?? "") !== (b.nic ?? "") && a.nic && b.nic) out.push(`Onboard Ethernet differs: ${a.shortName} uses ${a.nic}, ${b.shortName} uses ${b.nic}.`);

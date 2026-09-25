@@ -277,3 +277,33 @@ select option { background: var(--card); color: var(--ink); }
   .filters .check { min-height: 40px; margin: 0; }
   .filters__body > .btn { grid-column: 1 / -1; }
 }
+
+/* ---- Prices, build list, FAQ, chips, quiz ---- */
+.price-box { margin-bottom: 8px; }
+.price-chart { margin: 12px 0 0; }
+.price-chart svg { width: 100%; height: auto; display: block; }
+.price-chart__axis { stroke: var(--rule); stroke-width: 1; }
+.price-chart__line { fill: none; stroke: var(--accent); stroke-width: 2.5; stroke-linejoin: round; }
+.price-chart__label { fill: var(--muted); font-size: 11px; }
+.build-list { list-style: none; padding: 0; margin: 0 0 8px; display: grid; gap: 8px; }
+.build-list__item { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 12px 14px; background: var(--card); border: 1px solid var(--rule); border-radius: var(--radius); }
+.build-list__item > div { min-width: 0; }
+@media (max-width: 599px) { .build-list__item { flex-direction: column; } }
+.faq { margin: 0; }
+.faq > div { padding: 12px 0; border-bottom: 1px solid var(--rule); }
+.faq dt { font-weight: 700; }
+.faq dd { margin: 4px 0 0; }
+.chips { list-style: none; padding: 0; margin: 8px 0 16px; display: flex; flex-wrap: wrap; gap: 8px; }
+.chips a { display: inline-block; padding: 6px 12px; border: 1px solid var(--rule-strong); border-radius: 999px; color: var(--ink); text-decoration: none; font-size: .9rem; background: var(--card); }
+.chips a:hover { border-color: var(--accent); color: var(--accent); }
+.grid-2 { display: grid; grid-template-columns: minmax(0, 1fr); gap: 12px; }
+@media (min-width: 700px) { .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.quiz { display: grid; grid-template-columns: minmax(0, 1fr); gap: 20px; }
+@media (min-width: 900px) { .quiz { grid-template-columns: 340px minmax(0, 1fr); } .quiz__form { position: sticky; top: 12px; align-self: start; } }
+.quiz fieldset { border: 0; padding: 0; margin: 0 0 14px; }
+.quiz legend { font-weight: 700; margin-bottom: 4px; }
+.quiz .check { min-height: 36px; }
+.ticks { list-style: none; padding: 0; margin: 6px 0 0; }
+.quiz__jump { position: sticky; top: 64px; z-index: 5; margin: 0; }
+.quiz__jump a { display: inline-block; background: var(--ink); color: var(--paper); padding: 6px 12px; border-radius: 999px; text-decoration: none; font-weight: 600; }
+@media (min-width: 900px) { .quiz__jump { display: none; } }

@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { reportError } from "../monitoring";
 import { SITE } from "../site";
 
 /**
@@ -33,6 +34,6 @@ export const json = (body: unknown, status = 200) =>
 export const tooMany = (msg = "Too many attempts. Please wait a few minutes and try again.") => json({ error: msg }, 429);
 
 export const serverError = (where: string, e: unknown) => {
-  console.error(`[auth] ${where} failed`, e);
+  reportError(e, { where: `api:${where}` });
   return json({ error: "Something went wrong on our side. Please try again in a moment." }, 503);
 };

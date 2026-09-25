@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AdSlot } from "../components/ads/AdSlot";
 import { Finder } from "../components/Finder";
 import { CATALOG } from "../lib/catalog";
+import { PUBLISHED_USE_CASES } from "../data/usecases";
 import { SITE, absoluteUrl } from "../lib/site";
 
 export default function Home() {
@@ -21,6 +22,10 @@ export default function Home() {
         matter: NVMe slots, PCIe expansion, second-NIC options, RAM limits and video transcoding. Filter by what you
         need.
       </p>
+      <p className="btn-row" style={{ marginTop: 0 }}>
+        <Link className="btn btn--primary" href="/which-mini-pc">Not sure? Take the 6-question quiz</Link>
+        <Link className="btn" href="/best">Best picks by use case</Link>
+      </p>
       <Finder items={CATALOG} />
       <AdSlot placement="below-results" />
       <section className="prose">
@@ -31,6 +36,8 @@ export default function Home() {
           verdicts follow the newest CPU generation sold in that chassis. Check the exact CPU in any listing. See{" "}
           <Link href="/about">our methodology</Link> or <Link href="/contact">send a correction</Link>.
         </p>
+        <h2>Popular lists</h2>
+        <ul className="chips">{PUBLISHED_USE_CASES.map((u) => <li key={u.slug}><Link href={`/best/${u.slug}`}>{u.label}</Link></li>)}</ul>
         <p>
           New to this? Start with <Link href="/guides/check-a-used-mini-pc-listing">how to check a used mini PC listing</Link>{" "}
           and <Link href="/guides/quick-sync-generations-plex-jellyfin">which generations transcode 4K</Link>.

@@ -55,11 +55,35 @@ create table if not exists alerts (
 alter table alerts add column if not exists user_id uuid references users(id) on delete cascade;
 create index if not exists alerts_user_idx on alerts (user_id);
 
+-- Asking-price observations written by the price sync (eBay Browse API). Never hand-entered.
+create table if not exists price_snapshots (
+  id bigserial primary key,
+  model_slug text not null,
+  marketplace text not null,
+  currency text not null,
+  min_price numeric not null check (min_price > 0),
+  median_price numeric not null check (median_price > 0),
+  sample_size int not null check (sample_size > 0),
+  observed_at timestamptz not null default now(),
+  source text not null default 'ebay-browse'
+);
+create index if not exists price_snapshots_model_idx on price_snapshots (model_slug, marketplace, observed_at desc);
+
+-- Saved models (watchlist) per account.
+create table if not exists saved_models (
+  user_id uuid not null references users(id) on delete cascade,
+  model_slug text not null,
+  created_at timestamptz not null default now(),
+  primary key (user_id, model_slug)
+);
+
 alter table users enable row level security;
 alter table email_codes enable row level security;
 alter table sessions enable row level security;
 alter table auth_attempts enable row level security;
 alter table alerts enable row level security;
+alter table price_snapshots enable row level security;
+alter table saved_models enable row level security;
 
 -- Supabase exposes the public schema through its REST API roles. Revoke them when they
 -- exist (they do not on a plain local Postgres).
@@ -68,8 +92,8 @@ declare r text;
 begin
   foreach r in array array['anon', 'authenticated'] loop
     if exists (select 1 from pg_roles where rolname = r) then
-      execute format('revoke all on users, email_codes, sessions, auth_attempts, alerts from %I', r);
-      execute format('revoke all on sequence auth_attempts_id_seq from %I', r);
+      execute format('revoke all on users, email_codes, sessions, auth_attempts, alerts, price_snapshots, saved_models from %I', r);
+      execute format('revoke all on sequence auth_attempts_id_seq, price_snapshots_id_seq from %I', r);
     end if;
   end loop;
 end $$;

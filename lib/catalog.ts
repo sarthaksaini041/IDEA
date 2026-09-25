@@ -68,3 +68,30 @@ export function genRange(v: ModelView): string {
   const gens = [...new Set(v.cpuList.map((c) => c.generation))];
   return gens.join(" / ");
 }
+
+/** Lowest sourced idle reading, or null. Never estimated. */
+export function measuredIdle(m: Model): { idleW: number; label: string; source: { label: string; url: string } } | null {
+  const recs = [...(m.power ?? [])].sort((a, b) => a.idleW - b.idleW);
+  const r = recs[0];
+  return r ? { idleW: r.idleW, label: r.idleMaxW ? `${r.idleW}–${r.idleMaxW} W` : `about ${r.idleW} W`, source: r.source } : null;
+}
+
+export const hasLan = (m: Model, speed: "2.5GbE" | "10GbE") => (m.lanUpgrades ?? []).some((u) => u.speed === speed);
+/** 10GbE implies a path that also handles 2.5GbE cards. */
+export const fasterThanGigabit = (m: Model) => (m.lanUpgrades ?? []).length > 0;
+
+export function networkingLabel(m: Model): string {
+  const up = m.lanUpgrades ?? [];
+  if (!up.length) return m.extraNicOption ? `1 GbE onboard; ${m.extraNicOption}` : "1 GbE onboard; USB adapter for more";
+  return up.map((u) => `${u.speed} via ${u.via}${u.basis === "community" ? " (owner-reported, not a vendor option)" : ""}`).join("; ");
+}
+
+export function idleLabel(m: Model): string {
+  const r = measuredIdle(m);
+  return r ? `${r.label} at the wall (${r.source.label.replace(/:.*/, "")}, ${m.power?.[0]?.config})` : "Not measured yet";
+}
+
+/** The newest CPU option sold in the chassis (highest generation, then most threads). */
+export function newestCpu(m: ModelView) {
+  return [...m.cpuList].sort((a, b) => b.genNumber - a.genNumber || b.threads - a.threads)[0];
+}

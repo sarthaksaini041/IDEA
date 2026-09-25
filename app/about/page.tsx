@@ -35,10 +35,17 @@ export default function About() {
         at least one key figure could not be confirmed from an official document we could access. {high} of{" "}
         {MODELS.length} models are currently in the first group. Found an error? <Link href="/contact">Tell us</Link>; corrections are the fastest way this site improves.
       </p>
-      <h2>How the site is funded</h2>
+      <h2 id="affiliate">How the site is funded</h2>
       <p>
-        Through display advertising and, where enabled, marketplace affiliate links. Neither changes which models are listed,
-        how they are described, or their order. Ads are always labelled &quot;Advertisement&quot; and kept apart from the content.
+        Through display advertising and, where enabled, marketplace affiliate links (eBay Partner Network, and Amazon Associates
+        for upgrade parts). Neither changes which models are listed, how they are described, or their order. Ads are always
+        labelled &quot;Advertisement&quot; and kept apart from the content. Affiliate links are marked with a disclosure next to them.
+      </p>
+      <h2>Prices and power figures</h2>
+      <p>
+        We only show a price when it comes from a live marketplace feed, with the date it was checked, and we never estimate one.
+        Price history charts show stored observations only. Power figures are published only with a source, the configuration
+        and the measurement method; otherwise a model page says &quot;Not measured yet&quot;.
       </p>
     </div>
   );

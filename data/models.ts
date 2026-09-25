@@ -7,10 +7,40 @@
 //   `confidence: "check"` = not fully confirmed by an official document we could access;
 //   the UI shows a visible "verify before buying" badge for these.
 // - Measured values (idle power) are null until someone measures them. Never estimate them.
+//   Measurements go in `power` with their source, method and date (see PowerRecord).
 // - Unofficial-but-common facts (e.g. 64 GB working where 32 GB is official) go in `notes`,
 //   never in the official field.
 
 export type Brand = "Lenovo" | "Dell" | "HP";
+
+/**
+ * A power reading. Only ever added with a source: a manufacturer figure (e.g. ENERGY STAR
+ * idle-state power), a cited third-party review, or a community submission we reviewed.
+ */
+export interface PowerRecord {
+  kind: "manufacturer" | "third-party" | "community";
+  /** Idle wall draw; a range's lower bound when the source gives a range. */
+  idleW: number;
+  idleMaxW?: number;
+  loadW?: number;
+  /** CPU / RAM / drives / OS the figure was taken with. */
+  config: string;
+  /** e.g. "Wall meter, 230 V, Proxmox idle, 1 NVMe, no display". */
+  method: string;
+  /** Publication date of the source: YYYY-MM-DD, or YYYY when only the year is known. */
+  measuredOn: string;
+  source: { label: string; url: string };
+  /** Where we found the citation, when it is not our own reading of the source. */
+  via?: { label: string; url: string };
+}
+
+/** A faster-network path beyond the onboard port. */
+export interface LanUpgrade {
+  speed: "2.5GbE" | "10GbE";
+  via: string;
+  /** official = listed by the manufacturer; community = widely reported by owners, not a vendor option. */
+  basis: "official" | "community";
+}
 
 export interface Model {
   slug: string;
@@ -21,7 +51,7 @@ export interface Model {
   released: number; // year
   chipset: string | null;
   cpus: string[]; // ids from data/cpus.ts (common configurations, not exhaustive)
-  ram: { slots: number; type: "DDR4"; maxOfficialGB: number; speedMTs: number };
+  ram: { slots: number; type: "DDR4" | "DDR5"; maxOfficialGB: number; speedMTs: number };
   storage: { m2Nvme: number; sata25: number };
   pcieSlot: "none" | "riser-x8" | "riser" | "gpu-option";
   nic: string | null; // onboard Ethernet chip
@@ -32,11 +62,16 @@ export interface Model {
   confidence: "high" | "check";
   searchAliases: string[];
   notes: string[];
+  /** Sourced power readings; empty until one exists. */
+  power?: PowerRecord[];
+  lanUpgrades?: LanUpgrade[];
   /** Official documents the figures were checked against. */
   sources: { label: string; url: string }[];
 }
 
-const m = (x: Model) => x;
+import { POWER } from "./power";
+
+const m = (x: Model) => ({ ...x, power: [...(x.power ?? []), ...(POWER[x.slug] ?? [])] });
 
 export const MODELS: Model[] = [
   // ---------------- Lenovo ThinkCentre Tiny ----------------
@@ -68,6 +103,7 @@ export const MODELS: Model[] = [
       "Owners commonly run 64 GB (2×32 GB), but Lenovo's official maximum is 32 GB.",
       "Installing the riser card uses the space of the 2.5\" drive bay.",
     ],
+    lanUpgrades: [{ speed: "10GbE", via: "Low-profile PCIe network card in the riser slot (riser and bracket bought separately)", basis: "community" }],
     sources: [{ label: "Lenovo User Guide & Hardware Maintenance Manual", url: "https://download.lenovo.com/pccbbs/thinkcentre_pdf/m720q_ughmm_en.pdf" }],
   }),
   m({
@@ -83,6 +119,7 @@ export const MODELS: Model[] = [
       "Only one M.2 NVMe slot. The two-slot model is the M920x, a common mix-up in listings.",
       "Business chipset (Q370) and I219-LM Ethernet; vPro/AMT remote management on vPro CPU configurations.",
     ],
+    lanUpgrades: [{ speed: "10GbE", via: "Low-profile PCIe network card in the riser slot (riser and bracket bought separately)", basis: "community" }],
     sources: [{ label: "Lenovo User Guide & Hardware Maintenance Manual", url: "https://download.lenovo.com/pccbbs/thinkcentre_pdf/m920q_ughmm_en.pdf" }],
   }),
   m({
@@ -98,6 +135,7 @@ export const MODELS: Model[] = [
       "Two M.2 NVMe slots, which makes it a good pick for ZFS mirrors or a boot + data split.",
       "Usually costs more than the M920q on the used market because it is rarer.",
     ],
+    lanUpgrades: [{ speed: "10GbE", via: "Low-profile PCIe network card in the riser slot (riser and bracket bought separately)", basis: "community" }],
     sources: [{ label: "Lenovo PSREF spec sheet", url: "https://psref.lenovo.com/syspool/Sys/PDF/ThinkCentre/ThinkCentre_M920x_Tiny/ThinkCentre_M920x_Tiny_Spec.pdf" }],
   }),
   m({
@@ -146,6 +184,7 @@ export const MODELS: Model[] = [
     nic: "Intel I219-LM", extraNicOption: "PCIe 3.0 x8 low-profile slot (uses the 2.5\" bay space)", vpro: "some-skus", psuW: [65, 90, 135, 230],
     idleW: null, confidence: "high", searchAliases: ["m90q", "m90q gen 1"],
     notes: ["Two M.2 slots plus 10th-gen CPUs with Hyper-Threading: a strong Proxmox node if priced near an M920q."],
+    lanUpgrades: [{ speed: "10GbE", via: "Low-profile PCIe network card in the riser slot (riser and bracket bought separately)", basis: "community" }],
     sources: [{ label: "Lenovo PSREF spec sheet", url: "https://psref.lenovo.com/syspool/Sys/PDF/ThinkCentre/ThinkCentre_M90q/ThinkCentre_M90q_Spec.pdf" }],
   }),
 
@@ -337,6 +376,41 @@ export const MODELS: Model[] = [
     idleW: null, confidence: "high", searchAliases: ["705 g4 mini", "elitedesk 705"],
     notes: ["AMD APU variant of the EliteDesk Mini line."],
     sources: [{ label: "HP QuickSpecs (EliteDesk 705 G4)", url: "https://h20195.www2.hp.com/v2/getpdf.aspx/c06040429.pdf" }, { label: "HP Maintenance and Service Guide", url: "https://h10032.www1.hp.com/ctg/Manual/c06112892.pdf" }],
+  }),
+
+  // ---------------- HP, 11th/12th gen (added 2026-09) ----------------
+  m({
+    slug: "hp-elitedesk-800-g8-mini",
+    brand: "HP", family: "EliteDesk Mini", name: "HP EliteDesk 800 G8 Mini", shortName: "EliteDesk 800 G8 Mini",
+    released: 2021, chipset: "Q570",
+    cpus: ["i5-11400t", "i5-11500t", "i5-11600t"],
+    ram: { slots: 2, type: "DDR4", maxOfficialGB: 64, speedMTs: 3200 },
+    storage: { m2Nvme: 2, sata25: 1 }, pcieSlot: "none",
+    nic: "Intel I219-LM", extraNicOption: "HP Flex IO module", vpro: "some-skus", psuW: [90],
+    idleW: null, confidence: "high", searchAliases: ["800 g8 mini", "elitedesk g8", "elitedesk 800 g8"],
+    notes: [
+      "11th-gen (Rocket Lake) Intel graphics add AV1 hardware decode, which no 6th–10th gen box in this list has.",
+      "HP's QuickSpecs lists 64 GB (2 × SODIMM DDR4-3200) as the official maximum.",
+      "When a second M.2 SSD is fitted in the factory M.2 storage configuration, there is no SATA drive bracket: check a listing includes the 2.5\" caddy if you need it.",
+    ],
+    sources: [{ label: "HP QuickSpecs: EliteDesk 800 G8 (c07048012)", url: "https://h20195.www2.hp.com/v2/GetPDF.aspx/c07048012.pdf" }],
+  }),
+  m({
+    slug: "hp-elite-mini-800-g9",
+    brand: "HP", family: "Elite Mini", name: "HP Elite Mini 800 G9", shortName: "Elite Mini 800 G9",
+    released: 2022, chipset: "Q670",
+    cpus: ["i3-12100t", "i5-12500t", "i5-13500t"],
+    ram: { slots: 2, type: "DDR5", maxOfficialGB: 64, speedMTs: 4800 },
+    storage: { m2Nvme: 2, sata25: 1 }, pcieSlot: "none",
+    nic: "Intel I219-LM", extraNicOption: "HP Flex IO: Intel I226-V 2.5GbE port (factory option)", vpro: "some-skus", psuW: null,
+    idleW: null, confidence: "high", searchAliases: ["800 g9 mini", "elite mini g9", "elitedesk 800 g9"],
+    lanUpgrades: [{ speed: "2.5GbE", via: "Flex IO port with an Intel I226-V 2.5GbE controller (must be configured at purchase)", basis: "official" }],
+    notes: [
+      "The first generation in this list with DDR5: older DDR4 SODIMMs do not fit.",
+      "12th/13th-gen Intel graphics decode AV1 in hardware, the most future-proof option here for Plex or Jellyfin.",
+      "Power adapter wattage varies by configuration (HP lists several external supplies); check the label on the one included.",
+    ],
+    sources: [{ label: "HP QuickSpecs: Elite Series 800 G9 (c08017769)", url: "https://h20195.www2.hp.com/v2/GetPDF.aspx/c08017769.pdf" }],
   }),
 ];
 

@@ -1,5 +1,5 @@
 import type { ModelView } from "../lib/catalog";
-import { genRange, pcieLabel } from "../lib/catalog";
+import { genRange, idleLabel, networkingLabel, pcieLabel } from "../lib/catalog";
 
 export function SpecSheet({ m }: { m: ModelView }) {
   const rows: [string, string][] = [
@@ -12,9 +12,10 @@ export function SpecSheet({ m }: { m: ModelView }) {
     ["PCIe expansion", pcieLabel(m.pcieSlot)],
     ["Onboard Ethernet", m.nic ?? "Not listed"],
     ["Extra NIC option", m.extraNicOption ?? "None (USB adapter only)"],
+    ["Faster networking", (m.lanUpgrades ?? []).length ? networkingLabel(m) : "No 2.5/10GbE path beyond USB adapters"],
     ["vPro / AMT", m.vpro === "some-skus" ? "On vPro CPU configurations" : m.vpro === "no" ? "No" : "Not listed"],
     ["Power adapters", m.psuW ? m.psuW.map((w) => `${w} W`).join(" or ") : "Not listed"],
-    ["Idle power (measured)", m.idleW ? `${m.idleW} W at the wall` : "Not measured yet"],
+    ["Idle power (measured)", idleLabel(m)],
   ];
   return (
     <div className="panel" style={{ padding: 0 }}>

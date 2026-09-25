@@ -1,9 +1,20 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { MediaTable } from "../components/MediaTable";
-import { CATALOG } from "../lib/catalog";
+import { CATALOG, type ModelView } from "../lib/catalog";
+import { NEW_GUIDES } from "./guides-more";
 
-export interface Guide { slug: string; title: string; description: string; updated: string; body: () => ReactNode }
+export interface Guide {
+  slug: string;
+  title: string;
+  description: string;
+  updated: string;
+  body: () => ReactNode;
+  /** Models this guide is relevant to (drives "Related guides" on model pages). */
+  models?: (m: ModelView) => boolean;
+  /** Related /best pages and guides, shown under the article. */
+  related?: { href: string; label: string }[];
+}
 
 export const GUIDES: Guide[] = [
   {
@@ -11,6 +22,8 @@ export const GUIDES: Guide[] = [
     title: "Which used mini PCs can transcode 4K for Plex and Jellyfin?",
     description: "Intel Quick Sync and AMD VCN capabilities by generation, and what they mean for 4K HEVC, HDR and AV1 files on a used mini PC media server.",
     updated: "2026-09-25",
+    models: (m) => m.vendor === "Intel",
+    related: [{ href: "/best/best-mini-pc-for-plex-4k", label: "Best used mini PCs for Plex 4K" }, { href: "/best/mini-pcs-with-av1-decode", label: "Mini PCs with AV1 decode" }, { href: "/?media=av1", label: "Filter the finder for AV1 decode" }],
     body: () => (
       <>
         <p>
@@ -23,7 +36,7 @@ export const GUIDES: Guide[] = [
         <ul>
           <li><strong>6th gen (Skylake), e.g. i5-6500T:</strong> fine for 1080p H.264. It cannot fully decode 10-bit HEVC in hardware, which is what most 4K HDR files use, so those fall back to the CPU and stutter.</li>
           <li><strong>7th–10th gen (Kaby Lake to Comet Lake), e.g. i5-8500T, i5-10500T:</strong> hardware-decode 10-bit HEVC and VP9. This is the sweet spot on price in used 1-litre PCs. No AV1 decode.</li>
-          <li><strong>12th gen and newer, e.g. i5-12500T:</strong> add AV1 decode. Buy this if your library or your sources are moving to AV1.</li>
+          <li><strong>11th gen and newer, e.g. i5-11500T, i5-12500T:</strong> add AV1 decode. Buy this if your library or your sources are moving to AV1.</li>
           <li><strong>AMD Ryzen PRO APUs:</strong> they work with Jellyfin via VA-API, but encoder quality and media-server support are behind Intel Quick Sync. Buy AMD for CPU cores, not for transcoding.</li>
         </ul>
         <h2>Plex vs Jellyfin</h2>
@@ -54,6 +67,8 @@ export const GUIDES: Guide[] = [
     title: "How to check a used mini PC listing before you buy",
     description: "A practical checklist for buying an ex-office ThinkCentre Tiny, OptiPlex Micro or EliteDesk Mini: CPU, RAM, power adapter, drive caddies, BIOS locks and fair prices.",
     updated: "2026-09-25",
+    models: () => true,
+    related: [{ href: "/which-mini-pc", label: "Which mini PC is right for me? (quiz)" }],
     body: () => (
       <>
         <p>Refurbished office mini PCs are cheap because they come by the pallet. Listings are often vague, so the same model can be a bargain or a dud depending on what is actually in the box. Check these before you pay.</p>
@@ -78,6 +93,7 @@ export const GUIDES: Guide[] = [
       </>
     ),
   },
+  ...NEW_GUIDES,
 ];
 
 export const getGuide = (slug: string) => GUIDES.find((g) => g.slug === slug);

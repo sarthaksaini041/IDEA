@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { SITE } from "../../lib/site";
 
-export const metadata: Metadata = { title: "Terms of use", description: `Terms for using ${SITE.name}.`, alternates: { canonical: "/terms" } };
+export const metadata: Metadata = { title: "Terms of use", description: `Terms for using ${SITE.name}: how the spec data and price information may be used, accuracy limits, accounts and alerts, and outbound marketplace links.`, alternates: { canonical: "/terms" } };
 
 export default function Terms() {
   return (

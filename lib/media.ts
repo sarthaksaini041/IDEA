@@ -23,7 +23,7 @@ export const MEDIA: Record<IgpuFamily, MediaCaps> = {
     note: "Handles 10-bit HEVC (typical 4K HDR) in hardware. No AV1 decode, so AV1 files fall back to the CPU.",
   },
   "intel-xe": {
-    label: "Intel Quick Sync (Xe, Alder Lake)",
+    label: "Intel Quick Sync (Xe, 11th–13th gen)",
     decode: { h264: true, hevc8: true, hevc10: true, vp9: true, av1: true },
     encode: { h264: true, hevc: true, av1: false },
     note: "Adds AV1 hardware decode. The most future-proof option in this list for media servers.",

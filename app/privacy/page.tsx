@@ -3,7 +3,7 @@ import Link from "next/link";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { SITE } from "../../lib/site";
 
-export const metadata: Metadata = { title: "Privacy policy", description: `How ${SITE.name} handles your data.`, alternates: { canonical: "/privacy" } };
+export const metadata: Metadata = { title: "Privacy policy", description: `How ${SITE.name} handles your data: accounts, price alerts, cookieless analytics, advertising and affiliate links, and how to delete your data.`, alternates: { canonical: "/privacy" } };
 
 export default function Privacy() {
   return (
@@ -14,6 +14,7 @@ export default function Privacy() {
       <h2>What we collect</h2>
       <ul>
         <li><strong>Accounts:</strong> if you create one, we store your name, email address, a salted one-way hash of your password (never the password itself), when you verified your email, and a hashed login session. One-time email codes are stored only as hashes and expire after 10 minutes. We also briefly keep short-lived counters of login and code attempts per IP address and email to block abuse; these are deleted after a day.</li>
+        <li><strong>Saved models:</strong> if you save models to your watchlist, we store which models you saved, linked to your account. Delete them any time from the model page.</li>
         <li><strong>Price alerts:</strong> the model, maximum price and marketplace you choose, linked to your account. We use them only to send the alert emails you asked for. Every alert email has a one-click link that deletes that alert, and you can delete alerts from your account page.</li>
         <li><strong>Analytics and performance:</strong> we use Vercel Web Analytics and Vercel Speed Insights, run by our hosting provider Vercel Inc. They count page views, referrers, country, browser and device type, and measure how fast pages load (Core Web Vitals). They set no cookies, store nothing on your device and do not follow you across days or other sites. Before anything is sent, we remove email addresses, one-time codes, tokens and the query string of login and account pages from the page address.</li>
         <li><strong>Local settings:</strong> your compare selection is stored in your own browser (localStorage) and never sent to us.</li>

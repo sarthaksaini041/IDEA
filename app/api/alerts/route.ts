@@ -1,4 +1,5 @@
-import { json, readJson, rejectCrossSite, serverError } from "../../../lib/auth/http";
+import { json, readJson, rejectCrossSite, serverError, tooMany } from "../../../lib/auth/http";
+import { hit } from "../../../lib/auth/rate";
 import { getSessionUser } from "../../../lib/auth/session";
 import { MAX_ALERTS_PER_USER, countForUser, createAlert } from "../../../lib/store";
 import { validateAlert } from "../../../lib/validate";
@@ -15,6 +16,7 @@ export async function POST(req: Request) {
   if (!v.ok) return json({ errors: v.errors }, 422);
 
   try {
+    if (await hit(`alert-create:${user.id}`, 20, 3600)) return tooMany();
     if ((await countForUser(user.id)) >= MAX_ALERTS_PER_USER) {
       return json({ errors: { form: `You can have up to ${MAX_ALERTS_PER_USER} alerts. Delete one to add another.` } }, 422);
     }

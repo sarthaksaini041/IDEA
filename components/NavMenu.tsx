@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 const LINKS: [string, string][] = [
   ["/", "Finder"],
   ["/compare", "Compare"],
+  ["/best", "Best for"],
   ["/guides", "Guides"],
   ["/alerts", "Price alerts"],
   ["/account", "Account"],
