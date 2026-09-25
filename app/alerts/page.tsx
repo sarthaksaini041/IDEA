@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Suspense } from "react";
 import { AlertForm } from "../../components/AlertForm";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
+import { getSessionUser } from "../../lib/auth/session";
 import { CATALOG } from "../../lib/catalog";
 
 export const metadata: Metadata = {
@@ -11,21 +12,32 @@ export const metadata: Metadata = {
   alternates: { canonical: "/alerts" },
 };
 
-type Props = { searchParams: Promise<{ status?: string }> };
+type Props = { searchParams: Promise<{ model?: string }> };
 
 export default async function AlertsPage({ searchParams }: Props) {
-  const { status } = await searchParams;
+  const user = await getSessionUser();
+  const { model } = await searchParams;
+  const next = `/alerts${model ? `?model=${encodeURIComponent(model)}` : ""}`;
   return (
     <>
       <Breadcrumbs items={[{ name: "Price alerts", href: "/alerts" }]} />
       <div className="prose">
         <h1>Price alerts</h1>
-        <p className="lede">Pick a model and the most you want to pay. We check current fixed-price eBay listings and email you when one matches.</p>
-        {status === "confirmed" && <p className="notice notice--ok" role="status">Your alert is confirmed. You will hear from us when a matching listing appears.</p>}
-        {status === "invalid" && <p className="notice notice--err" role="alert">That confirmation link is invalid or was already used.</p>}
-        <Suspense fallback={<p className="muted">Loading form…</p>}>
-          <AlertForm models={CATALOG.map((m) => ({ slug: m.slug, name: m.name }))} />
-        </Suspense>
+        <p className="lede">Pick a model and the most you want to pay. We check current fixed-price eBay listings every day and email you when one matches.</p>
+        {user ? (
+          <Suspense fallback={<p className="muted">Loading form…</p>}>
+            <AlertForm models={CATALOG.map((m) => ({ slug: m.slug, name: m.name }))} email={user.email} />
+          </Suspense>
+        ) : (
+          <div className="panel">
+            <p style={{ marginTop: 0 }}><strong>Alerts need a free account</strong> so we know where to send them. It takes under a minute: name, email, password and a code.</p>
+            <p className="btn-row" style={{ marginBottom: 0 }}>
+              <Link className="btn btn--primary" href={`/signup?next=${encodeURIComponent(next)}`}>Create free account</Link>
+              <Link className="btn" href={`/login?next=${encodeURIComponent(next)}`}>Log in</Link>
+            </p>
+            <p className="small muted" style={{ marginBottom: 0 }}>The finder, comparisons and guides work without an account.</p>
+          </div>
+        )}
         <h2>How matching works</h2>
         <ul>
           <li>We search listing titles for the model name and skip obvious parts listings (caddies, adapters, &quot;for parts&quot;).</li>

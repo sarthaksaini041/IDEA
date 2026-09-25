@@ -4,7 +4,7 @@ import { ebayConfigured, findListingsUnder } from "../../../../lib/ebay";
 import { sendEmail } from "../../../../lib/email";
 import { searchQuery } from "../../../../lib/listings";
 import { absoluteUrl } from "../../../../lib/site";
-import { getStore } from "../../../../lib/store";
+import { listActive, markNotified } from "../../../../lib/store";
 
 // Called by a scheduler (vercel.json cron or any external cron) with
 // "Authorization: Bearer $CRON_SECRET".
@@ -17,8 +17,7 @@ export async function GET(req: Request) {
   }
   if (!ebayConfigured()) return NextResponse.json({ error: "eBay API not configured" }, { status: 503 });
 
-  const store = getStore();
-  const alerts = await store.listConfirmed();
+  const alerts = await listActive();
   let notified = 0;
   let failed = 0;
   for (const a of alerts) {
@@ -41,7 +40,7 @@ export async function GET(req: Request) {
           `Unsubscribe: ${absoluteUrl(`/alerts/unsubscribe?token=${a.token}`)}`,
         ].join("\n"),
       );
-      await store.markNotified(a.id, new Date().toISOString());
+      await markNotified(a.id, new Date().toISOString());
       notified++;
     } catch (e) {
       failed++;

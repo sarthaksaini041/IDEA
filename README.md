@@ -9,7 +9,8 @@ Why this idea, with sources: [docs/RESEARCH.md](docs/RESEARCH.md).
 - **Model pages** (`/models/[slug]`): spec sheet, owner notes, a transcoding table per CPU option, a buying checklist, eBay search links (US/UK/DE), similar models, and a confidence badge.
 - **Compare** (`/compare?m=a,b,c`): up to 3 models, with differing rows highlighted. Six curated head-to-heads at `/compare/[pair]` cover pairs people actually ask about on Reddit.
 - **Guides**: Quick Sync by generation, and a checklist for checking a used listing.
-- **Price alerts** (`/alerts`): double opt-in email alerts when a fixed-price eBay listing is at or under your price; one-click unsubscribe.
+- **Accounts** (`/signup`, `/verify`, `/login`, `/forgot`, `/account`): name + email + password, confirmed with a 6-digit emailed code. Only price alerts need an account; everything else is open.
+- **Price alerts** (`/alerts`): logged-in users get an email when a fixed-price eBay listing is at or under their price; manage alerts on `/account`; one-click unsubscribe in every email.
 
 ## Data policy (read before editing `data/models.ts`)
 - `confidence: "high"` requires an official source in `sources` (Lenovo PSREF/manual, Dell spec guide, HP service guide); a test enforces this. `"check"` shows a "Verify specs" badge.
@@ -22,8 +23,14 @@ Why this idea, with sources: [docs/RESEARCH.md](docs/RESEARCH.md).
 - **Next.js 16** (App Router) with React 19 and TypeScript.
   - Pages are statically generated.
   - API routes are only used for alerts.
-- **Postgres** stores alerts in production (any provider: Neon, Supabase, Vercel Postgres).
-  - Without `DATABASE_URL`, alerts go to a local JSON file (for development only).
+- **Postgres** stores accounts, sessions and alerts (Supabase in production). The schema lives in `lib/schema.ts` and is applied automatically (idempotent) on first use.
+- **Auth** is built in (`lib/auth/`), no third-party auth service:
+  - Passwords: scrypt (N=2^14, r=8, p=1) with per-user salt.
+  - Email codes: 6 digits, stored as HMAC-SHA256 keyed by `AUTH_SECRET`, 10-minute expiry, locked after 5 wrong tries, 60 s resend cooldown.
+  - Sessions: 256-bit random token in an HttpOnly, SameSite=Lax, Secure cookie; only its SHA-256 is stored; 30-day expiry; password reset signs out every device.
+  - Abuse limits (Postgres-backed, so they hold across serverless instances): per-IP limits on signup/login/verify/reset, per-account lock after 8 failed logins in 15 minutes, per-email code limits.
+  - CSRF: every state-changing API call requires a same-site `Origin` and a JSON body.
+  - No account discovery through "forgot password" or code resends.
 - **eBay Browse API** supplies active listings.
 - **Resend** sends email (plain HTTP, no SDK).
 - **Scheduled price check:** a Vercel Cron job (or any external scheduler) calls `/api/cron/check-prices`.
@@ -112,7 +119,8 @@ Traffic sources, top pages, returning visitors and search traffic come from the 
 - **Possible paid tier for alerts:** more alerts per email (the limit is 5 today), more marketplaces, sold-price history. Sold-price history needs eBay Marketplace Insights API approval.
 
 ## Testing done
-- Unit tests: 12 passing.
+- Unit tests: 14 passing (includes password hashing, code binding, session tokens, redirect safety).
+- Auth end-to-end (Playwright + real Postgres): signup → wrong/right code → alert → account → delete → logout → login → forgot/reset (other devices signed out), plus CSRF, brute-force lock, login lockout, no account discovery.
 - Browser tests (Playwright, 390px mobile and 1366px desktop): 66/66 checks passing. They covered:
   - Filtering, URL state and the empty state.
   - Compare flow and the alert form, including client validation, the success path and a simulated API failure.

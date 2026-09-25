@@ -12,7 +12,8 @@ export default function Privacy() {
       <p className="muted small">Last updated {SITE.dataUpdated}</p>
       <h2>What we collect</h2>
       <ul>
-        <li><strong>Price alerts:</strong> if you create one, we store your email address, the model, your maximum price and marketplace, and the time you created it. We use them only to send the alert emails you asked for. Each email has a one-click link that deletes the alert.</li>
+        <li><strong>Accounts:</strong> if you create one, we store your name, email address, a salted one-way hash of your password (never the password itself), when you verified your email, and a hashed login session. One-time email codes are stored only as hashes and expire after 10 minutes. We also briefly keep short-lived counters of login and code attempts per IP address and email to block abuse; these are deleted after a day.</li>
+        <li><strong>Price alerts:</strong> the model, maximum price and marketplace you choose, linked to your account. We use them only to send the alert emails you asked for. Every alert email has a one-click link that deletes that alert, and you can delete alerts from your account page.</li>
         <li><strong>Analytics:</strong> we use privacy-friendly, cookieless analytics that count page views, referrers, device type and feature use (for example &quot;filter used&quot;). They do not use cookies or build personal profiles.</li>
         <li><strong>Local settings:</strong> your compare selection is stored in your own browser (localStorage) and never sent to us.</li>
       </ul>
@@ -33,7 +34,7 @@ export default function Privacy() {
       <h2>Affiliate links</h2>
       <p>Links to marketplaces may be affiliate links. The marketplace may set its own cookies when you click them, under its own privacy policy.</p>
       <h2>Your rights</h2>
-      <p>You can ask us to access or delete any data we hold about you by emailing <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>. Deleting an alert through its unsubscribe link removes it immediately.</p>
+      <p>You can ask us to access or delete any data we hold about you by emailing <a href={`mailto:${SITE.contactEmail}`}>{SITE.contactEmail}</a>. Deleting an alert removes it immediately. To delete your account and all its data, email us from the address on the account.</p>
     </div>
   );
 }

@@ -14,6 +14,7 @@ export function Header() {
           <Link href="/compare">Compare</Link>
           <Link href="/guides">Guides</Link>
           <Link href="/alerts">Price alerts</Link>
+          <Link href="/account">Account</Link>
         </nav>
       </div>
     </header>
