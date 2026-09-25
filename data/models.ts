@@ -282,13 +282,13 @@ export const MODELS: Model[] = [
     ram: { slots: 2, type: "DDR4", maxOfficialGB: 32, speedMTs: 2666 },
     storage: { m2Nvme: 2, sata25: 1 }, pcieSlot: "none",
     nic: "Intel I219-LM", extraNicOption: "HP Flex IO module (e.g. second Ethernet port)", vpro: "some-skus", psuW: [65, 90],
-    idleW: null, confidence: "check", searchAliases: ["800 g4 mini", "elitedesk g4", "elitedesk 800 g4"],
+    idleW: null, confidence: "high", searchAliases: ["800 g4 mini", "elitedesk g4", "elitedesk 800 g4"],
     notes: [
-      "Owners report two M.2 NVMe slots plus a 2.5\" bay. HP's service guide only describes one M.2 SSD slot, so check the unit.",
+      "Up to three drives: HP QuickSpecs list two internal M.2 SSD connectors (2230 or 2280) plus one 2.5\" SATA bay.",
       "The Flex IO port can take an HP network module, giving a second NIC without USB adapters.",
       "Owners commonly run 64 GB, but HP's official maximum is 32 GB.",
     ],
-    sources: [{ label: "HP Maintenance and Service Guide", url: "https://h10032.www1.hp.com/ctg/Manual/c06063157.pdf" }],
+    sources: [{ label: "HP QuickSpecs (EliteDesk 800 G4)", url: "https://h20195.www2.hp.com/v2/getpdf.aspx/c06040430.pdf" }, { label: "HP Maintenance and Service Guide", url: "https://h10032.www1.hp.com/ctg/Manual/c06063157.pdf" }],
   }),
   m({
     slug: "hp-elitedesk-800-g5-mini",
@@ -299,7 +299,7 @@ export const MODELS: Model[] = [
     storage: { m2Nvme: 2, sata25: 1 }, pcieSlot: "none",
     nic: "Intel I219-LM", extraNicOption: "HP Flex IO module", vpro: "some-skus", psuW: [65, 90],
     idleW: null, confidence: "check", searchAliases: ["800 g5 mini", "elitedesk g5"],
-    notes: ["HP's official maximum is 32 GB; owners commonly report 64 GB working.", "Owners report the same two-M.2 layout as the G4; HP's service guide only describes one M.2 SSD slot."],
+    notes: ["HP's official maximum is 32 GB; owners commonly report 64 GB working.", "Its predecessor, the 800 G4 Mini, officially has two M.2 SSD connectors; HP's G5 QuickSpecs is no longer online, so the G5 count is unconfirmed."],
     sources: [{ label: "HP Maintenance and Service Guide", url: "https://h10032.www1.hp.com/ctg/Manual/c06439994.pdf" }],
   }),
   m({
@@ -333,10 +333,10 @@ export const MODELS: Model[] = [
     cpus: ["r5-2400ge"],
     ram: { slots: 2, type: "DDR4", maxOfficialGB: 32, speedMTs: 2666 },
     storage: { m2Nvme: 1, sata25: 1 }, pcieSlot: "none",
-    nic: null, extraNicOption: null, vpro: null, psuW: [65],
-    idleW: null, confidence: "check", searchAliases: ["705 g4 mini", "elitedesk 705"],
+    nic: "Realtek RTL8111EPH", extraNicOption: null, vpro: null, psuW: [65],
+    idleW: null, confidence: "high", searchAliases: ["705 g4 mini", "elitedesk 705"],
     notes: ["AMD APU variant of the EliteDesk Mini line."],
-    sources: [{ label: "HP Maintenance and Service Guide", url: "https://h10032.www1.hp.com/ctg/Manual/c06112892.pdf" }],
+    sources: [{ label: "HP QuickSpecs (EliteDesk 705 G4)", url: "https://h20195.www2.hp.com/v2/getpdf.aspx/c06040429.pdf" }, { label: "HP Maintenance and Service Guide", url: "https://h10032.www1.hp.com/ctg/Manual/c06112892.pdf" }],
   }),
 ];
 

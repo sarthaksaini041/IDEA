@@ -16,7 +16,7 @@ Why this idea, with sources: [docs/RESEARCH.md](docs/RESEARCH.md).
 - `idleW` stays `null` until someone actually measures it; a test enforces this. Never estimate it.
 - Unofficial facts (for example "64 GB works") go in `notes`, never in the official fields.
 - Transcoding facts live once per iGPU family in `lib/media.ts`.
-- **Status:** 14 of 23 models are verified against official documents. The 9 still marked `check` are listed in docs/RESEARCH.md; verify them before launch.
+- **Status:** 16 of 23 models are verified against official documents. The 7 still marked `check` are listed in docs/RESEARCH.md; verify them before launch.
 
 ## Tech stack
 - **Next.js 16** (App Router) with React 19 and TypeScript.

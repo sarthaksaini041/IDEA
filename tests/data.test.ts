@@ -24,7 +24,7 @@ test("every model references known CPUs and sane specs", () => {
 test("verified models cite an official source", () => {
   for (const m of MODELS) {
     if (m.confidence === "high") assert.ok(m.sources.length > 0, `${m.slug} is high confidence without a source`);
-    for (const src of m.sources) assert.match(src.url, /^https:\/\/(psref\.lenovo\.com|download\.lenovo\.com|dl\.dell\.com|h10032\.www1\.hp\.com)\//);
+    for (const src of m.sources) assert.match(src.url, /^https:\/\/(psref\.lenovo\.com|download\.lenovo\.com|dl\.dell\.com|h10032\.www1\.hp\.com|h20195\.www2\.hp\.com)\//);
   }
 });
 
