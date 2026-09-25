@@ -12,11 +12,11 @@ Why this idea, with sources: [docs/RESEARCH.md](docs/RESEARCH.md).
 - **Price alerts** (`/alerts`): double opt-in email alerts when a fixed-price eBay listing is at or under your price; one-click unsubscribe.
 
 ## Data policy (read before editing `data/models.ts`)
-- `confidence: "check"` shows a "Verify specs" badge. Only switch a model to `"high"` after checking the official Lenovo PSREF, Dell or HP spec sheet or maintenance manual.
+- `confidence: "high"` requires an official source in `sources` (Lenovo PSREF/manual, Dell spec guide, HP service guide); a test enforces this. `"check"` shows a "Verify specs" badge.
 - `idleW` stays `null` until someone actually measures it; a test enforces this. Never estimate it.
 - Unofficial facts (for example "64 GB works") go in `notes`, never in the official fields.
 - Transcoding facts live once per iGPU family in `lib/media.ts`.
-- **Before launch:** verify the 18 models marked `check`.
+- **Status:** 14 of 23 models are verified against official documents. The 9 still marked `check` are listed in docs/RESEARCH.md; verify them before launch.
 
 ## Tech stack
 - **Next.js 16** (App Router) with React 19 and TypeScript.
@@ -109,7 +109,7 @@ Traffic sources, top pages, returning visitors and search traffic come from the 
 - **Possible paid tier for alerts:** more alerts per email (the limit is 5 today), more marketplaces, sold-price history. Sold-price history needs eBay Marketplace Insights API approval.
 
 ## Testing done
-- Unit tests: 11 passing.
+- Unit tests: 12 passing.
 - Browser tests (Playwright, 390px mobile and 1366px desktop): 66/66 checks passing. They covered:
   - Filtering, URL state and the empty state.
   - Compare flow and the alert form, including client validation, the success path and a simulated API failure.

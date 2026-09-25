@@ -30,9 +30,9 @@ export default function About() {
       </ul>
       <h2>Confidence labels</h2>
       <p>
-        <span className="badge badge--high">Specs widely confirmed</span> means the key figures are consistent across the
-        manufacturer&apos;s documentation and owner reports. <span className="badge badge--check">Verify specs</span> means
-        we believe the figures are right but have not yet checked every field against the official manual. {high} of{" "}
+        <span className="badge badge--high">Specs widely confirmed</span> means the key figures (RAM limit, drive slots,
+        PCIe, network chip) were checked against the manufacturer&apos;s spec sheet or service manual, linked on each model page. <span className="badge badge--check">Verify specs</span> means
+        at least one key figure could not be confirmed from an official document we could access. {high} of{" "}
         {MODELS.length} models are currently in the first group. Found an error? <Link href="/contact">Tell us</Link>; corrections are the fastest way this site improves.
       </p>
       <h2>How the site is funded</h2>

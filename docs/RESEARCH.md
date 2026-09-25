@@ -65,7 +65,7 @@ An early non-tech pass (gardening, lawn care, knitting, houseplants) was dropped
 - **Price alerts:** free now, and a natural paid tier later (more alerts, more markets, sold-price history).
 
 ## Main risks
-1. **Data accuracy.** 18 of 23 models are marked "check" until verified against official manuals. Do this before launch.
+1. **Data accuracy.** See "Spec verification" below: 14 of 23 models are verified; 9 still need checking.
 2. **Unverified competitor coverage.** MPCDB may already cover some used models.
 3. **eBay sold-price data** needs the Marketplace Insights API (restricted), so alerts use active asking prices.
 4. **AdSense approval is not guaranteed.** Google requires valuable original content, so grow the guides and verified data first.
@@ -77,3 +77,36 @@ An early non-tech pass (gardening, lawn care, knitting, houseplants) was dropped
 - A Google-certified CMP is required for personalized ads in the EEA/UK (since 2024-01-16) and Switzerland (since 2024-07-31): https://support.google.com/adsense/answer/13554116
 - No ads on pages without publisher content (thank-you, error, low-value pages): https://support.google.com/publisherpolicies/answer/11112688
 - ads.txt line format `google.com, pub-…, DIRECT, f08c47fec0942fa0`: https://support.google.com/adsense/answer/12171612
+
+## Spec verification (September 2026)
+Each model's key figures (official RAM limit, M.2 and 2.5" counts, PCIe, onboard NIC, chipset, power adapters) were checked against official documents downloaded from Lenovo PSREF / download.lenovo.com, dl.dell.com and h10032.www1.hp.com. Every model page links to its source.
+
+**Verified (14):**
+- Lenovo: M720q, M920q, M920x, M75q-1, M75q Gen 2, M70q Gen 1, M90q Gen 1
+- Dell OptiPlex Micro: 3050, 7050, 7060, 3070, 7070, 3080, 7080
+
+**Corrections the check made to the earlier data:**
+- OptiPlex **7080 Micro**: two M.2 SSD slots (was 1) and a half-height PCIe x8 slot (was none).
+- OptiPlex **7070 Micro**: 32 GB official maximum (was 64).
+- EliteDesk **800 G5 Mini**: 32 GB official maximum (was 64).
+- OptiPlex **7050 Micro**: onboard NIC is Intel I219-V (was I219-LM).
+- **M90q Gen 1**: PCIe 3.0 x8 slot confirmed; memory is DDR4-2933.
+- **M70q Gen 1**: H470 chipset; memory is DDR4-2933.
+- Blank chipset and NIC fields filled for M75q-1, M75q Gen 2, OptiPlex 3050, 3070 and 3080.
+- Several power-adapter wattages corrected.
+
+**Still unverified (9):**
+
+| Model | Why |
+|-------|-----|
+| M710q | No official document found |
+| OptiPlex 3060 Micro | The service manual has no RAM limit |
+| EliteDesk 800 G2 Mini | Official document doesn't confirm every key field |
+| EliteDesk 800 G3 Mini | Changed to 1 M.2 slot, since HP's guide describes only one |
+| EliteDesk 800 G4 Mini | HP's service guide describes only one M.2 SSD slot; owners report two |
+| EliteDesk 800 G5 Mini | Same one-slot vs two-slot conflict as the G4 |
+| EliteDesk 800 G6 Mini | No official document found |
+| ProDesk 600 G3 Mini | Official document doesn't confirm every key field |
+| EliteDesk 705 G4 Mini | Official document doesn't confirm every key field |
+
+HP's QuickSpecs server (h20195.www2.hp.com) was unreachable from the build environment. Checking HP QuickSpecs is the next step for the HP models.

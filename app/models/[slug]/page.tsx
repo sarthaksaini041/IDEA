@@ -68,7 +68,7 @@ export default async function ModelPage({ params }: Props) {
           </p>
           {m.confidence === "check" && (
             <p className="notice small">
-              We have not yet checked every field on this page against the official {m.brand} manual. Treat slot counts and
+              We could not confirm every field on this page from an official {m.brand} document. Treat slot counts and
               RAM limits as a starting point and confirm them for the exact machine type in a listing.{" "}
               <Link href="/contact">Know the answer? Send a correction.</Link>
             </p>
@@ -76,6 +76,15 @@ export default async function ModelPage({ params }: Props) {
 
           <h2>Specifications</h2>
           <SpecSheet m={m} />
+          {m.sources.length > 0 && (
+            <p className="small muted">
+              Checked against:{" "}
+              {m.sources.map((src, i) => (
+                <span key={src.url}>{i > 0 && ", "}<a href={src.url} rel="nofollow noopener" target="_blank">{src.label}</a></span>
+              ))}
+              . Official limits can be lower than what owners report working.
+            </p>
+          )}
 
           {m.notes.length > 0 && (
             <>

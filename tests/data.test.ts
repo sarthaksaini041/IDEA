@@ -21,6 +21,13 @@ test("every model references known CPUs and sane specs", () => {
   }
 });
 
+test("verified models cite an official source", () => {
+  for (const m of MODELS) {
+    if (m.confidence === "high") assert.ok(m.sources.length > 0, `${m.slug} is high confidence without a source`);
+    for (const src of m.sources) assert.match(src.url, /^https:\/\/(psref\.lenovo\.com|download\.lenovo\.com|dl\.dell\.com|h10032\.www1\.hp\.com)\//);
+  }
+});
+
 test("measured values are never invented", () => {
   // Idle power must stay null until a real measurement with a source is added.
   for (const m of MODELS) assert.equal(m.idleW, null, `${m.slug} has idleW without a measurement process`);
@@ -32,6 +39,11 @@ test("known community facts hold", () => {
   assert.equal(by("lenovo-thinkcentre-m920x").storage.m2Nvme, 2, "M920x has two NVMe slots");
   assert.equal(by("hp-elitedesk-800-g4-mini").storage.m2Nvme, 2);
   assert.notEqual(by("lenovo-thinkcentre-m720q").pcieSlot, "none");
+  // Verified against Dell/Lenovo/HP documents (see each model's sources).
+  assert.equal(by("dell-optiplex-7080-micro").storage.m2Nvme, 2, "Dell spec: two M.2 SSD slots");
+  assert.equal(by("dell-optiplex-7070-micro").ram.maxOfficialGB, 32, "Dell spec: 32 GB max");
+  assert.equal(by("hp-elitedesk-800-g5-mini").ram.maxOfficialGB, 32, "HP MSG: up to 32 GB");
+  assert.equal(by("lenovo-thinkcentre-m90q-gen-1").pcieSlot, "riser-x8", "PSREF: PCIe 3.0 x8");
 });
 
 test("comparisons reference existing models", () => {
