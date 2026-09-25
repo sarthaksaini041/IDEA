@@ -3,6 +3,7 @@ import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import type { ReactNode } from "react";
 import { AdScript } from "../components/ads/AdScript";
 import { Analytics } from "../components/analytics/Analytics";
+import { VercelInsights } from "../components/analytics/VercelInsights";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { SITE } from "../lib/site";
@@ -41,6 +42,8 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <Footer />
         <AdScript />
         <Analytics />
+        {/* Only on Vercel deployments: the scripts are served by Vercel itself. */}
+        {process.env.NEXT_PUBLIC_VERCEL_ENV && <VercelInsights />}
       </body>
     </html>
   );

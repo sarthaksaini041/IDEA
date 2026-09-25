@@ -14,6 +14,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     ...CATALOG.map((m) => ({ url: absoluteUrl(`/models/${m.slug}`), lastModified: d, priority: 0.8 })),
     ...COMPARISONS.map((c) => ({ url: absoluteUrl(`/compare/${c.slug}`), lastModified: d, priority: 0.7 })),
     ...GUIDES.map((g) => ({ url: absoluteUrl(`/guides/${g.slug}`), lastModified: new Date(g.updated), priority: 0.7 })),
-    ...["/about", "/privacy", "/terms", "/contact"].map((p) => ({ url: absoluteUrl(p), lastModified: d, priority: 0.2 })),
+    ...["/about", "/privacy", "/cookies", "/terms", "/contact"].map((p) => ({ url: absoluteUrl(p), lastModified: d, priority: 0.2 })),
   ];
 }

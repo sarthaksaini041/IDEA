@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 import { SITE } from "../../lib/site";
 
@@ -14,10 +15,12 @@ export default function Privacy() {
       <ul>
         <li><strong>Accounts:</strong> if you create one, we store your name, email address, a salted one-way hash of your password (never the password itself), when you verified your email, and a hashed login session. One-time email codes are stored only as hashes and expire after 10 minutes. We also briefly keep short-lived counters of login and code attempts per IP address and email to block abuse; these are deleted after a day.</li>
         <li><strong>Price alerts:</strong> the model, maximum price and marketplace you choose, linked to your account. We use them only to send the alert emails you asked for. Every alert email has a one-click link that deletes that alert, and you can delete alerts from your account page.</li>
-        <li><strong>Analytics:</strong> we use privacy-friendly, cookieless analytics that count page views, referrers, device type and feature use (for example &quot;filter used&quot;). They do not use cookies or build personal profiles.</li>
+        <li><strong>Analytics and performance:</strong> we use Vercel Web Analytics and Vercel Speed Insights, run by our hosting provider Vercel Inc. They count page views, referrers, country, browser and device type, and measure how fast pages load (Core Web Vitals). They set no cookies, store nothing on your device and do not follow you across days or other sites. Before anything is sent, we remove email addresses, one-time codes, tokens and the query string of login and account pages from the page address.</li>
         <li><strong>Local settings:</strong> your compare selection is stored in your own browser (localStorage) and never sent to us.</li>
       </ul>
-      <h2>Advertising and cookies</h2>
+      <h2>Cookies</h2>
+      <p>Browsing sets no cookies. Signing in sets one strictly necessary login cookie. Full details are in our <Link href="/cookies">cookie policy</Link>.</p>
+      <h2>Advertising</h2>
       <p>
         This site may show ads served by Google. Third-party vendors, including Google, use cookies to serve ads based on a
         user&apos;s prior visits to this website or other websites. Google&apos;s use of advertising cookies enables it and its
