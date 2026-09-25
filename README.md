@@ -57,10 +57,13 @@ See `.env.example`.
 ## Production deployment (Vercel)
 1. Import the repository into Vercel.
 2. Set `NEXT_PUBLIC_SITE_URL` to your domain and `NEXT_PUBLIC_CONTACT_EMAIL` to your address.
-3. **Database:** create a Postgres database and set `DATABASE_URL`. The `alerts` table is created automatically on first use.
+3. **Database (Supabase project `tinylab-finder`, us-east-1, already created, with the `alerts` table and row-level security set up):**
+   - In Supabase, open **Connect → Transaction pooler** and copy the URI (port 6543). Put your database password into it and set it as `DATABASE_URL`.
+   - Go to **Settings → Database → SSL Configuration → Download certificate** and paste the PEM into `DATABASE_CA_CERT`, so the connection is encrypted and verified.
+   - The table has RLS on with no policies, so Supabase's public REST API can't read it. Only the server, using the database password, can.
 4. **eBay:** create a production keyset at developer.ebay.com, then set `EBAY_CLIENT_ID` and `EBAY_CLIENT_SECRET`.
 5. **Email:** verify your domain in Resend, then set `RESEND_API_KEY` and `EMAIL_FROM`.
-6. **Cron:** set `CRON_SECRET` to a long random string. `vercel.json` already runs the check every 6 hours, and Vercel sends the secret as a Bearer token.
+6. **Cron:** set `CRON_SECRET` to a long random string. `vercel.json` runs the check once a day at 06:17 UTC (the most often Vercel's free Hobby plan allows; on Pro you can shorten it to every 6 hours), and Vercel sends the secret as a Bearer token.
 7. **Domain:** in Vercel's Domains settings, add the domain and create the DNS records it shows you.
 8. **Search Console:** submit `https://yourdomain/sitemap.xml` in Google Search Console.
 
