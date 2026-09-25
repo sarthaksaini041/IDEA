@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Breadcrumbs } from "../../components/Breadcrumbs";
 import Link from "next/link";
 import { AD_PROVIDER, adsEnabled } from "../../components/ads/AdConfig";
+import { CookieSettingsButton } from "../../components/consent/CookieConsent";
 import { SITE } from "../../lib/site";
 
 export const metadata: Metadata = {
@@ -18,7 +19,7 @@ export default function Cookies() {
       <h1>Cookie policy</h1>
       <p className="muted small">Last updated {SITE.dataUpdated}</p>
       <p>
-        We keep this short because we use very little. Browsing models, filters, comparisons and guides sets no cookies
+        We use very little. Browsing models, filters, comparisons and guides sets no cookies
         at all. The only cookie we set is a login cookie, and only after you sign in.
       </p>
 
@@ -42,6 +43,12 @@ export default function Cookies() {
               <td>Until you clear it or your browser data</td>
             </tr>
             <tr>
+              <td><code>tlf-consent</code></td>
+              <td>localStorage, first-party. Strictly necessary.</td>
+              <td>Remembers your cookie settings so we don&apos;t ask again.</td>
+              <td>Until you clear it or your browser data</td>
+            </tr>
+            <tr>
               <td>Vercel Web Analytics</td>
               <td>No cookies, no storage</td>
               <td>Counts page views, referrers, country and device type. Visitors are not tracked across days or sites. We strip email addresses, codes and tokens from page addresses before anything is sent.</td>
@@ -57,13 +64,12 @@ export default function Cookies() {
         </table>
       </div>
 
-      <h2>Why there is no cookie banner</h2>
+      <h2>Your choice</h2>
       <p>
-        Consent laws such as the EU ePrivacy Directive and UK PECR exempt storage that is strictly necessary for a service
-        you ask for: staying logged in, and remembering your own compare list. Our analytics set no cookies and store
-        nothing on your device. So there is nothing to ask permission for today.
+        On your first visit we show a short notice. Strictly necessary storage is always on. Analytics is on unless you
+        choose &quot;Necessary only&quot;; it sets no cookies either way. You can change your choice any time:
       </p>
-
+      <p><CookieSettingsButton /></p>
       <h2>Advertising</h2>
       {adsOn ? (
         <p>

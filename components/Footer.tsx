@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { SITE } from "../lib/site";
+import { CookieSettingsButton } from "./consent/CookieConsent";
 
 export function Footer() {
   return (
@@ -9,6 +10,7 @@ export function Footer() {
           <Link href="/about">About &amp; methodology</Link>
           <Link href="/privacy">Privacy</Link>
           <Link href="/cookies">Cookies</Link>
+          <CookieSettingsButton />
           <Link href="/terms">Terms</Link>
           <Link href="/contact">Contact &amp; corrections</Link>
         </nav>

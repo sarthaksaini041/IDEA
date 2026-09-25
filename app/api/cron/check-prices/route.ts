@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getModel } from "../../../../data/models";
 import { ebayConfigured, findListingsUnder } from "../../../../lib/ebay";
 import { sendEmail } from "../../../../lib/email";
+import { alertEmail } from "../../../../lib/emailTemplates";
 import { searchQuery } from "../../../../lib/listings";
 import { absoluteUrl } from "../../../../lib/site";
 import { listActive, markNotified } from "../../../../lib/store";
@@ -27,19 +28,16 @@ export async function GET(req: Request) {
     try {
       const hits = await findListingsUnder(searchQuery(model), a.maxPrice, a.marketplace);
       if (!hits.length) continue;
-      const lines = hits.slice(0, 5).map((h) => `- ${h.currency} ${h.price.toFixed(2)}: ${h.title}\n  ${h.url}`);
-      await sendEmail(
-        a.email,
-        `${model.shortName} listed under ${a.maxPrice}`,
-        [
-          `Current listings at or under your price (check the CPU, RAM and whether a power adapter is included):`,
-          ``,
-          ...lines,
-          ``,
-          `Specs and what to check: ${absoluteUrl(`/models/${model.slug}`)}`,
-          `Unsubscribe: ${absoluteUrl(`/alerts/unsubscribe?token=${a.token}`)}`,
-        ].join("\n"),
-      );
+      const unsubscribeUrl = absoluteUrl(`/alerts/unsubscribe?token=${a.token}`);
+      const mail = alertEmail({
+        modelName: model.shortName,
+        modelUrl: absoluteUrl(`/models/${model.slug}`),
+        maxPrice: a.maxPrice,
+        hits: hits.slice(0, 5),
+        unsubscribeUrl,
+        accountUrl: absoluteUrl("/account"),
+      });
+      await sendEmail({ to: a.email, ...mail, headers: { "List-Unsubscribe": `<${unsubscribeUrl}>` } });
       await markNotified(a.id, new Date().toISOString());
       notified++;
     } catch (e) {

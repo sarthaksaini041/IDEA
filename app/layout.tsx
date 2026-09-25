@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { AdScript } from "../components/ads/AdScript";
 import { Analytics } from "../components/analytics/Analytics";
 import { VercelInsights } from "../components/analytics/VercelInsights";
+import { CookieConsent } from "../components/consent/CookieConsent";
 import { Footer } from "../components/Footer";
 import { Header } from "../components/Header";
 import { SITE } from "../lib/site";
@@ -40,6 +41,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           <div className="wrap">{children}</div>
         </main>
         <Footer />
+        <CookieConsent />
         <AdScript />
         <Analytics />
         {/* Only on Vercel deployments: the scripts are served by Vercel itself. */}
